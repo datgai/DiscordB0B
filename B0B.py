@@ -14,8 +14,12 @@ import sys
 Clukk = time.asctime(time.localtime())
 thetime = datetime.datetime.strptime(Clukk, "%c")
 intents = discord.Intents.all()
-bot = commands.Bot(command_prefix=commands.when_mentioned_or('BOB '),case_insensitive=True,intents=intents)
-
+current_song =''
+bot = commands.Bot(command_prefix=commands.when_mentioned_or('0 '),case_insensitive=True,intents=intents)
+YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist': 'True','default_search' : 'ytsearch'}
+FFMPEG_OPTIONS = {
+    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
+songq=[]
 
 @bot.event
 async def on_ready():
@@ -35,7 +39,6 @@ async def on_message(message):
     await bot.process_commands(message)
 
 
-
 @bot.command(pass_context = True)
 async def ping(ctx):
     await ctx.channel.send ('pong.')
@@ -43,8 +46,6 @@ async def ping(ctx):
 @bot.command(pass_context = True)
 async def say(ctx):
     await ctx.channel.send (ctx.message.content)
-    print(ctx.message.content)
-
 
 @bot.command(pass_context = True)
 async def clear(ctx, number: int):
@@ -69,41 +70,72 @@ async def tolong(ctx):
 
 @bot.command(pass_context = True)
 async def connect(ctx):
-    await ctx.channel.send("Joining Voice...")
-    vchannel = ctx.message.author.voice.channel
-    voice = get(bot.voice_clients, guild=ctx.guild)
-    if voice and voice.is_connected():
-        await voice.move_to(vchannel)
-    else:
-        voice = await vchannel.connect()
+    try:
+        await ctx.message.author.voice.channel.connect()
+        await ctx.channel.send("Joining Voice...")
+    except:
+        pass
+
 
 @bot.command()
-async def music(ctx, url):
-    await connect(ctx)
-    print("Playing music "+ url)
-    YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist': 'True'}
-    FFMPEG_OPTIONS = {
-        'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
+async def mq(ctx,url):
+    songq.append([ctx.author.voice.channel,url])
+    await ctx.send("<%s> added into queue."%(url))
+
+@bot.command()
+async def play(ctx):
     voice = get(bot.voice_clients, guild=ctx.guild)
+    for channel,song in songq:
+        if channel == ctx.voice_client.channel:
+            current_song = song
+            with YoutubeDL(YDL_OPTIONS) as ydl:
+                info = ydl.extract_info(current_song, download=False)
+                try:
+                    URL = info['url']
+                except Exception as e:
+                    URL = info['entries'][0]['url']
+            if not voice.is_playing():
+                songq.remove([ctx.author.voice.channel, current_song])
+            voice.play(FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e:play(ctx))
+            voice.is_playing()
 
-    if not voice.is_playing():
-        with YoutubeDL(YDL_OPTIONS) as ydl:
-            info = ydl.extract_info(url, download=False)
-        URL = info['url']
-        voice.play(FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
-        voice.is_playing()
-        await ctx.send('Bot is playing')
+            await ctx.send("<%s> playing..."%(current_song))
+            print("<%s> playing..."%(current_song))
 
-    # check if the bot is already playing
-    else:
-        await ctx.send("Bot is already playing")
-        return
+
+@bot.command()
+async def m(ctx, url):
+    voice = get(bot.voice_clients, guild=ctx.guild)
+    await connect(ctx)
+    await mq(ctx,url)
+    try:
+        await play(ctx)
+    except:
+        pass
+
+@bot.command()
+async def skip(ctx):
+    voice = get(bot.voice_clients, guild=ctx.guild)
+    voice.stop()
+    await play(ctx)
+
+@bot.command()
+async def clearqueue(ctx):
+    for songdata in songq:
+         if songdata[0] == ctx.author.voice.channel:
+                songq.remove(songdata)
+
 
 @bot.command()
 async def disconnect(ctx):
-    await ctx.send("Leaving Voice...")
-    for vc in bot.voice_clients:
-        await vc.disconnect()
+    if ctx.author.voice.channel == ctx.voice_client.channel:
+        await ctx.voice_client.disconnect()
+        await ctx.send("Leaving Voice...")
+        await clearqueue()
+
+@bot.command()
+async def checkqueue(ctx):
+    await ctx.send(songq)
 
 # addgoogle
 # get a random image from Imgur.
