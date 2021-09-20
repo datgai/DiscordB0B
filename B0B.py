@@ -83,7 +83,7 @@ async def mq(ctx,url):
     await ctx.send("<%s> added into queue."%(url))
 
 @bot.command()
-async def play(ctx):
+async def play(ctx,url):
     voice = get(bot.voice_clients, guild=ctx.guild)
     for channel,song in songq:
         if channel == ctx.voice_client.channel:
@@ -94,12 +94,14 @@ async def play(ctx):
                     URL = info['url']
                 except Exception as e:
                     URL = info['entries'][0]['url']
+                    current_song = 'https://www.youtube.com/watch?v='+ info['entries'][0]['id']
+                    print(current_song)
             if not voice.is_playing():
-                songq.remove([ctx.author.voice.channel, current_song])
+                songq.remove([ctx.author.voice.channel, url])
             voice.play(FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e:play(ctx))
             voice.is_playing()
 
-            await ctx.send("<%s> playing..."%(current_song))
+            await ctx.send("%s playing..."%(current_song))
             print("<%s> playing..."%(current_song))
 
 
@@ -109,7 +111,7 @@ async def m(ctx, url):
     await connect(ctx)
     await mq(ctx,url)
     try:
-        await play(ctx)
+        await play(ctx,url)
     except:
         pass
 
@@ -131,7 +133,7 @@ async def disconnect(ctx):
     if ctx.author.voice.channel == ctx.voice_client.channel:
         await ctx.voice_client.disconnect()
         await ctx.send("Leaving Voice...")
-        await clearqueue()
+        await clearqueue(ctx)
 
 @bot.command()
 async def checkqueue(ctx):
