@@ -83,21 +83,22 @@ async def mq(ctx,url):
     await ctx.send("<%s> added into queue."%(url))
 
 @bot.command()
-async def play(ctx,url):
+async def play(ctx):
     voice = get(bot.voice_clients, guild=ctx.guild)
     for channel,song in songq:
         if channel == ctx.voice_client.channel:
             current_song = song
+            print(current_song)
             with YoutubeDL(YDL_OPTIONS) as ydl:
                 info = ydl.extract_info(current_song, download=False)
                 try:
                     URL = info['url']
                 except Exception as e:
                     URL = info['entries'][0]['url']
-                    current_song = 'https://www.youtube.com/watch?v='+ info['entries'][0]['id']
-                    print(current_song)
+                    playing_song = 'https://www.youtube.com/watch?v='+ info['entries'][0]['id']
+                    print(playing_song)
             if not voice.is_playing():
-                songq.remove([ctx.author.voice.channel, url])
+                songq.remove([ctx.author.voice.channel, current_song])
             voice.play(FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e:play(ctx))
             voice.is_playing()
 
@@ -111,7 +112,7 @@ async def m(ctx, url):
     await connect(ctx)
     await mq(ctx,url)
     try:
-        await play(ctx,url)
+        await play(ctx)
     except:
         pass
 
@@ -139,6 +140,10 @@ async def disconnect(ctx):
 async def checkqueue(ctx):
     await ctx.send(songq)
 
+@bot.command()
+async def reset(ctx):
+    songq.clear()
+    await ctx.send('resetted... beep .boop.')
 # addgoogle
 # get a random image from Imgur.
 # cat
@@ -147,5 +152,4 @@ async def checkqueue(ctx):
 # timer
 
 bot.run("NDgxMDkzNzgwNzc1MjM5Njkw.W3rDfw.lkxSn97X6BXqBNoqq9AhrmMFK3E")
-print ("hello world")
-sys.stdout.flush()
+
