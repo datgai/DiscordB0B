@@ -15,6 +15,7 @@ Clukk = time.asctime(time.localtime())
 thetime = datetime.datetime.strptime(Clukk, "%c")
 intents = discord.Intents.all()
 current_song =''
+playing_song = ''
 bot = commands.Bot(command_prefix=commands.when_mentioned_or('0 '),case_insensitive=True,intents=intents)
 YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist': 'True','default_search' : 'ytsearch'}
 FFMPEG_OPTIONS = {
@@ -85,25 +86,28 @@ async def mq(ctx,url):
 @bot.command()
 async def play(ctx):
     voice = get(bot.voice_clients, guild=ctx.guild)
-    for channel,song in songq:
-        if channel == ctx.voice_client.channel:
-            current_song = song
-            print(current_song)
-            with YoutubeDL(YDL_OPTIONS) as ydl:
-                info = ydl.extract_info(current_song, download=False)
-                try:
-                    URL = info['url']
-                except Exception as e:
-                    URL = info['entries'][0]['url']
-                    playing_song = 'https://www.youtube.com/watch?v='+ info['entries'][0]['id']
-                    print(playing_song)
-            if not voice.is_playing():
-                songq.remove([ctx.author.voice.channel, current_song])
-            voice.play(FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e:play(ctx))
-            voice.is_playing()
+    def sing():
+        for channel,song in songq:
+            if channel == ctx.voice_client.channel:
+                current_song = song
+                print(current_song)
+                with YoutubeDL(YDL_OPTIONS) as ydl:
+                    info = ydl.extract_info(current_song, download=False)
+                    try:
+                        URL = info['url']
+                    except Exception as e:
+                        URL = info['entries'][0]['url']
+                        playing_song = 'https://www.youtube.com/watch?v='+ info['entries'][0]['id']
+                        print(playing_song)
+                if not voice.is_playing():
+                    songq.remove([ctx.author.voice.channel, current_song])
+                voice.play(FFmpegPCMAudio(URL, **FFMPEG_OPTIONS),after=lambda e: sing())
+                voice.is_playing()
 
-            await ctx.send("%s playing..."%(current_song))
-            print("<%s> playing..."%(current_song))
+                print("<%s> playing..."%(current_song))
+
+    await ctx.send("%s playing..." % (playing_song))
+    sing()
 
 
 @bot.command()
