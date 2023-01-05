@@ -1,1 +1,0 @@
-worker: python B0B.py
