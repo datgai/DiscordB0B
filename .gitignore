@@ -1,6 +1,9 @@
 /.idea
 /venv
 /pycache
+/.mypy_cache
+/config/logs
+/cogs/__pycache__
 .env
 jdk-17_windows-x64_bin.exe
 Lavalink.jar

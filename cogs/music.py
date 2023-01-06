@@ -8,7 +8,6 @@ from discord.ext import commands
 # this cog uses wavelink library for music as opposed to youtube-dl
 
 # Variables
-songq = []
 LAVALINK_PASS = os.getenv("LAVALINK_PASS")
 LAVALINK_PORT = os.getenv("LAVALINK_PORT")
 LAVALINK_ADDRESS = os.getenv("LAVALINK_ADDRESS")
@@ -17,12 +16,12 @@ LAVALINK_ADDRESS = os.getenv("LAVALINK_ADDRESS")
 class Music(commands.Cog):
     """Blast some tunes"""
 
-    def __init__(self, bot: commands.Bot):
-        self.bot = bot
+    def __init__(self, bot: commands.Bot) -> None:
+        self.bot: commands.Bot = bot
 
         bot.loop.create_task(self.connect_nodes())
 
-    async def connect_nodes(self):
+    async def connect_nodes(self) -> None:
         """Connect to our Lavalink nodes."""
         await self.bot.wait_until_ready()
 
@@ -34,23 +33,23 @@ class Music(commands.Cog):
         )
 
     @commands.Cog.listener()
-    async def on_wavelink_node_ready(self, node: wavelink.Node):
+    async def on_wavelink_node_ready(self, node: wavelink.Node) -> None:
         """Event fired when a node has finished connecting."""
         print(f"Node: <{node.identifier}> is ready!")
 
     @commands.Cog.listener()
     async def on_wavelink_track_end(
         self, player: wavelink.Player, track: wavelink.Track, reason
-    ):
+    ) -> None:
         ctx = player.ctx
-        vc: player = ctx.voice_client
+        vc = ctx.voice_client
 
         if vc.loop:
             return await vc.play(track)
         next_song = vc.queue.get()
         await vc.play(next_song)
         mbed = discord.Embed(
-            title=f"Now playing {next_song}...",
+            title=f"▶️ | Now playing {next_song}...",
             colour=discord.Colour.from_rgb(0, 255, 0),
         )
         await ctx.send(embed=mbed)
@@ -80,7 +79,7 @@ class Music(commands.Cog):
 
         await channel.connect(cls=wavelink.Player)
         mbed = discord.Embed(
-            title=f"Connected to {channel.name}",
+            title=f"🔗 | Connected to {channel.name}",
             colour=discord.Colour.from_rgb(0, 0, 255),
         )
         await ctx.send(embed=mbed)
@@ -90,7 +89,7 @@ class Music(commands.Cog):
         with_app_command=True,
         description="B0B will search for songs with the given search query.",
     )
-    async def searchm(self, ctx, search):
+    async def searchm(self, ctx, search: str):
         """Search for songs with the given search query."""
         tracks = await wavelink.YouTubeTrack.search(
             query=search,
@@ -113,13 +112,13 @@ class Music(commands.Cog):
         if not vc.is_playing():
             await vc.play(track)
             mbed = discord.Embed(
-                title=f"Now playing {track}...",
+                title=f"▶️ | Now playing {track}...",
                 colour=discord.Colour.from_rgb(0, 255, 0),
             )
         else:
             await vc.queue.put_wait(track)
             mbed = discord.Embed(
-                title=f"Added {track} to queue...",
+                title=f" 🎵 | Added {track} to queue...",
                 colour=discord.Colour.from_rgb(0, 0, 255),
             )
         await ctx.send(embed=mbed)
@@ -128,17 +127,17 @@ class Music(commands.Cog):
         setattr(vc, "loop", False)
 
     @commands.hybrid_command(
-        aliases=["stop"], with_app_command=True, description="B0B will skip a song"
+        aliases=["skip"], with_app_command=True, description="B0B will skip a song"
     )
     async def skipm(self, ctx):
         """Skip the song"""
-        vc: wavelink.Player = ctx.voice_client
+        vc = ctx.voice_client
 
         if vc.is_connected():
             if vc.is_playing():
                 await vc.stop()
                 mbed = discord.Embed(
-                    title=f"Stopped playing music",
+                    title=f" ⏭️ | Skipped current music",
                     colour=discord.Colour.from_rgb(0, 0, 255),
                 )
             else:
@@ -165,7 +164,8 @@ class Music(commands.Cog):
             if self.player.is_playing():
                 await self.player.pause()
                 mbed = discord.Embed(
-                    title="Playback paused", colour=discord.Colour.from_rgb(0, 0, 255)
+                    title="⏸️ |Playback paused",
+                    colour=discord.Colour.from_rgb(0, 0, 255),
                 )
             else:
                 mbed = discord.Embed(
@@ -187,7 +187,8 @@ class Music(commands.Cog):
         if not self.player.is_paused():
             await self.player.resume()
             mbed = discord.Embed(
-                title="Playback resumed", colour=discord.Colour.from_rgb(0, 0, 255)
+                title=" ▶️ | Playback resumed",
+                colour=discord.Colour.from_rgb(0, 0, 255),
             )
         else:
             mbed = discord.Embed(
@@ -199,17 +200,18 @@ class Music(commands.Cog):
     @commands.hybrid_command(
         aliases=["q"], with_app_command=True, description="Ask B0B for music queue"
     )
-    async def queuem(self, ctx):
+    async def queuem(self, ctx) -> None:
         """Get music queue"""
         vc: wavelink.Player = ctx.voice_client
-        await ctx.send(vc.queue)
+        for index, tracks in enumerate(vc.queue):
+            await ctx.send(f"{index}. {tracks} \n")
 
     @commands.hybrid_command(
         aliases=["dc"],
         with_app_command=True,
         description="B0B will disconnect from voice channels",
     )
-    async def disconnect(self, ctx):
+    async def disconnect(self, ctx) -> None:
         """Disconnect from voice channels"""
         vc: wavelink.Player = ctx.voice_client
 
@@ -218,7 +220,7 @@ class Music(commands.Cog):
         except Exception as e:
             print(e)
         mbed = discord.Embed(
-            title=f"Disconnected from voice channel",
+            title=f"🔌 |Disconnected from voice channel",
             colour=discord.Colour.from_rgb(0, 0, 255),
         )
         await ctx.send(embed=mbed)
