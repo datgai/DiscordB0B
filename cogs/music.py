@@ -60,7 +60,7 @@ class Music(commands.Cog):
         description="B0B will connect to a voice channel..",
     )
     async def connect(self, ctx, *, channel: typing.Optional[discord.VoiceChannel]):
-        """Connects to a voice channel"""
+        """🔗 Connects to a voice channel"""
         if channel is None:
             try:
                 channel = ctx.author.voice.channel
@@ -90,7 +90,7 @@ class Music(commands.Cog):
         description="B0B will search for songs with the given search query.",
     )
     async def searchm(self, ctx, search: str):
-        """Search for songs with the given search query."""
+        """🔍 Search for songs with the given search query."""
         tracks = await wavelink.YouTubeTrack.search(
             query=search,
         )
@@ -103,7 +103,7 @@ class Music(commands.Cog):
         description="B0B will play a song with the given search query.",
     )
     async def playm(self, ctx, *, track: wavelink.YouTubeTrack):
-        """Play a song with the given search query."""
+        """🎵 Play a song with the given search query."""
 
         if not ctx.voice_client:
             await self.connect(ctx, channel=ctx.author.voice.channel)
@@ -130,7 +130,7 @@ class Music(commands.Cog):
         aliases=["skip"], with_app_command=True, description="B0B will skip a song"
     )
     async def skipm(self, ctx):
-        """Skip the song"""
+        """⏭️ Skip the song"""
         vc = ctx.voice_client
 
         if vc.is_connected():
@@ -156,7 +156,7 @@ class Music(commands.Cog):
         aliases=["pause"], with_app_command=True, description="B0B will pause the song"
     )
     async def pausem(self, ctx):
-        """Pauses playback"""
+        """⏸️Pauses playback"""
         if self.player is None:
             return await ctx.send("B0B is not connected to any voice channels. Beep.")
 
@@ -180,7 +180,7 @@ class Music(commands.Cog):
         description="B0B will resume the song",
     )
     async def resumem(self, ctx):
-        """Resumes playback"""
+        """▶️ Resumes playback"""
         if self.player is None:
             return await ctx.send("B0B is not connected to any voice channels. Beep.")
 
@@ -212,7 +212,7 @@ class Music(commands.Cog):
         description="B0B will disconnect from voice channels",
     )
     async def disconnect(self, ctx) -> None:
-        """Disconnect from voice channels"""
+        """🔌 Disconnect from voice channels"""
         vc: wavelink.Player = ctx.voice_client
 
         try:

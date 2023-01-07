@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-initial_extensions = ["cogs.music"]
+initial_extensions = ["cogs.basic", "cogs.music", "cogs.web"]
 
 # Initialize variables
 try:
@@ -82,19 +82,10 @@ class B0B(commands.Bot):
 
 bot = B0B()
 
-# TODO:buggy sync
-@bot.command()
-@commands.is_owner()
-async def sync_command_tree(ctx) -> None:
-    """Syncs the command Tree"""
-    await bot.tree.sync(guild=ctx.guild)
-    print(f"Command tree synced at {ctx.guild}")
-    await ctx.reply("Command tree synced")
-
 
 @bot.hybrid_command(with_app_command=True, description="Pings B0B")
 async def ping(ctx) -> None:
-    """Pings B0B"""
+    """🏓 Pings B0B"""
     await ctx.reply("pong.")
 
 
@@ -105,8 +96,18 @@ async def say(interaction: discord.Interaction, message: discord.Message) -> Non
 
 @bot.hybrid_command(with_app_command=True, description="B0B's website")
 async def github(ctx) -> None:
-    """ "B0B's website"""
+    """🏠 B0B's website"""
     await ctx.send("https://github.com/datgai/DiscordB0B")
+
+
+# TODO:buggy sync
+@bot.command()
+@commands.is_owner()
+async def sync_command_tree(ctx) -> None:
+    """🔄Syncs the command Tree"""
+    await bot.tree.sync(guild = ctx.guild)
+    print(f"Command tree synced at {ctx.guild}")
+    await ctx.reply("Command tree synced")
 
 
 if __name__ == "__main__":
