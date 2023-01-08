@@ -18,8 +18,9 @@ There will (probably) be many more feature coming next, coming soon (never).
 
 ## Support
 I need moral support.
-
-<img src="https://media.tenor.com/qkPV6_DL-NAAAAAd/bocchi-the-rock-bocchi.gif" width="800" height="40" alt="Source : Bocchi The rock" />
+<p>
+  <img src="https://user-images.githubusercontent.com/23694752/211190911-38b6da60-c1e4-48a8-a3c3-68e90b9ddbfa.gif" width="800" height="40" alt="Source : Bocchi The rock" />
+<p>
 
 
 <!------ LINKS ------>
