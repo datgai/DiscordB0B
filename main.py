@@ -67,7 +67,7 @@ class B0B(commands.Bot):
             except Exception as error:
                 print(f"Failed to load extension {ext} due to {error}")
 
-    async def on_message(self, message) -> None:
+    async def on_message(self, message:discord.Message) -> None:
         # if message is not from itself
         if message.author == self.user:
             return
