@@ -13,21 +13,22 @@ class Web(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot: commands.Bot = bot
 
-    # TODO: handle spaces
+    def connectParse(self, link: str) -> str:
+        req = urllib.request.Request(url=link, headers=header)
+        print("Connecting")
+        resp = urllib.request.urlopen(req)
+        print("Opening")
+        parsed = bs.BeautifulSoup(resp, "html.parser")
+        print("Parsing")
+        return parsed
+
     @commands.hybrid_command(
         with_app_command=True,
         description="B0B google something for you ...",
     )
     async def google(self, ctx, search: str) -> None:
         """🤓 Does a search"""
-        req = urllib.request.Request(
-            url=f"https://www.google.com/search?q={search}&num=5", headers=header
-        )
-        print("Connecting")
-        resp = urllib.request.urlopen(req)
-        print("Opening")
-        soup = bs.BeautifulSoup(resp, "html.parser")
-        print("Parsing")
+        soup = self.connectParse(f"https://www.google.com/search?q={search}&num=5")
         links = soup.find_all("a")
 
         for link in links:
@@ -56,17 +57,10 @@ class Web(commands.Cog):
     ) -> None:
         "📷 Reddit"
         try:
-            req = urllib.request.Request(
-                url=f"https://www.reddit.com/r/{subreddit}/{sort}/", headers=header
-            )
+            soup = self.connectParse(f"https://www.reddit.com/r/{subreddit}/{sort}/")
         except Exception as e:
             print(e)
             await ctx.send(f"Unable to find Subreddit {subreddit}. Beep.")
-        print("Connecting")
-        resp = urllib.request.urlopen(req)
-        print("Opening")
-        soup = bs.BeautifulSoup(resp, "html.parser")
-        print("Parsing")
         images = soup.find_all("img", {"alt": "Post image"})
         print(images)
 
@@ -82,14 +76,7 @@ class Web(commands.Cog):
     )
     async def quotes(self, ctx, mode: str = "random") -> None:
         "🎓 Hmm Quotes..."
-        req = urllib.request.Request(
-            url=f"https://zenquotes.io/api/{mode}", headers=header
-        )
-        print("Connecting")
-        resp = urllib.request.urlopen(req)
-        print("Opening")
-        soup = bs.BeautifulSoup(resp, "html.parser")
-        print("Parsing")
+        soup = self.connectParse(f"https://zenquotes.io/api/{mode}")
         quotes = soup.findAll(text=True)
         quote = json.loads(str(quotes)[2:-2].encode("unicode_escape"))
         mbed = discord.Embed(
@@ -106,13 +93,7 @@ class Web(commands.Cog):
     async def cat(self, ctx) -> None:
         "🐈 Meowww"
 
-        req = urllib.request.Request(
-            url=f"https://api.thecatapi.com/v1/images/search", headers=header
-        )
-        print("Connecting")
-        resp = urllib.request.urlopen(req)
-        print("Opening")
-        soup = bs.BeautifulSoup(resp, "html.parser")
+        soup = self.connectParse("https://api.thecatapi.com/v1/images/search")
         print("Parsing")
         cat = soup.findAll(text=True)
         catjson = json.loads(str(cat)[3:-3])
@@ -127,14 +108,7 @@ class Web(commands.Cog):
     async def dog(self, ctx) -> None:
         "🐕 Woofffff"
 
-        req = urllib.request.Request(
-            url=f"https://api.thedogapi.com/v1/images/search", headers=header
-        )
-        print("Connecting")
-        resp = urllib.request.urlopen(req)
-        print("Opening")
-        soup = bs.BeautifulSoup(resp, "html.parser")
-        print("Parsing")
+        soup = self.connectParse("https://api.thedogapi.com/v1/images/search")
         dog = soup.findAll(text=True)
         dogjson = json.loads(str(dog)[3:-3])
         doglink = dogjson["url"]
@@ -148,14 +122,7 @@ class Web(commands.Cog):
     async def neko(self, ctx, mode: str = "neko") -> None:
         "❤️ キャットガールズは最高です"
 
-        req = urllib.request.Request(
-            url=f"https://nekos.life/api/v2/img/{mode}", headers=header
-        )
-        print("Connecting")
-        resp = urllib.request.urlopen(req)
-        print("Opening")
-        soup = bs.BeautifulSoup(resp, "html.parser")
-        print("Parsing")
+        soup = self.connectParse(f"https://nekos.life/api/v2/img/{mode}")
         neko = soup.findAll(text=True)
         nekojson = json.loads(str(neko)[2:-4])
         try:
@@ -170,14 +137,7 @@ class Web(commands.Cog):
     )
     async def facts(self, ctx, person: str = "B0B") -> None:
         "💪 Tells you a fact about someone"
-        req = urllib.request.Request(
-            url=f"https://api.chucknorris.io/jokes/random", headers=header
-        )
-        print("Connecting")
-        resp = urllib.request.urlopen(req)
-        print("Opening")
-        soup = bs.BeautifulSoup(resp, "html.parser")
-        print("Parsing")
+        soup = self.connectParse("https://api.chucknorris.io/jokes/random")
         dude = soup.findAll(text=True)
         print(str(dude)[2:-2])
         dudejson = json.loads(str(dude)[2:-2].encode("unicode_escape"))
