@@ -1,0 +1,18 @@
+- name: hello
+  description: Say hello!
+
+- name: echo
+  description: Echo message back to sender.
+  options:
+    - name: message
+      description: The message to echo back.
+      type: 3 # string
+      required: true
+
+- name: chat
+  description: Send a reply using LLM
+  options:
+    - name: message
+      description: The response.
+      type: 3 # string
+      required: true
