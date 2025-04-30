@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-initial_extensions = ["cogs.basic", "cogs.music", "cogs.web"]
+initial_extensions = ["cogs.basic", "cogs.web"]
 
 # Initialize variables
 try:
