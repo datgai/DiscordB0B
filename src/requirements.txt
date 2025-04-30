@@ -2,3 +2,5 @@ flask
 mangum
 asgiref
 discord-interactions
+dotenv
+requests

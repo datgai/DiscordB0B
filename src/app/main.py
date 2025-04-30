@@ -4,13 +4,15 @@ from flask import Flask, jsonify, request
 from mangum import Mangum
 from asgiref.wsgi import WsgiToAsgi
 from discord_interactions import verify_key_decorator
+import dotenv
 
+dotenv.load_dotenv()
 DISCORD_PUBLIC_KEY = os.environ.get("DISCORD_PUBLIC_KEY")
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 app = Flask(__name__)
 asgi_app = WsgiToAsgi(app)
-handler = Mangum(asgi_app)
+handler = Mangum(asgi_app, lifespan="off")
 
 
 @app.route("/", methods=["POST"])
@@ -20,7 +22,7 @@ async def interactions():
     return interact(raw_request)
 
 
-# @verify_key_decorator(DISCORD_PUBLIC_KEY)
+@verify_key_decorator(DISCORD_PUBLIC_KEY)
 def interact(raw_request):
     message_content = "No valid command or response available."  # Default value
     if raw_request["type"] == 1:  # PING
@@ -35,7 +37,7 @@ def interact(raw_request):
             headers = {"Content-Type": "application/json"}
             payload = {
                 "contents": [{
-                    "parts": [{"text": f"Using a 'Robot' persona, answer the following the following prompt: \n + {original_message}"}]
+                    "parts": [{"text": f"Using a 'Robot' persona, answer the following the following prompt within 50 words unless mentioned otherwise: \n + {original_message}"}]
                 }]
             }
             
@@ -51,7 +53,9 @@ def interact(raw_request):
             "data": {"content": message_content},
         }
 
-    return jsonify(response_data)
+    response = jsonify(response_data)
+    response.headers["Content-Type"] = "application/json"
+    return response
 
 
 if __name__ == "__main__":

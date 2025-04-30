@@ -1,10 +1,15 @@
 import requests
 import yaml
 import os
+from dotenv import load_dotenv
 
-TOKEN = os.environ.get("DISCORD_TOKEN")
-APPLICATION_ID = os.environ.get("DISCORD_CLIENT_ID")
+load_dotenv()
+
+
+TOKEN = os.getenv("DISCORD_TOKEN")
+APPLICATION_ID = os.getenv("DISCORD_CLIENT_ID")
 URL = f"https://discord.com/api/v9/applications/{APPLICATION_ID}/commands"
+
 
 with open("discord_commands.yaml", "r") as file:
     yaml_content = file.read()
