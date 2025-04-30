@@ -1,17 +1,22 @@
 import datetime
 import os
 import time
-
+import requests
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 
 load_dotenv()
 
-initial_extensions = ["cogs.basic", "cogs.music", "cogs.web"]
+initial_extensions = ["cogs.basic", "cogs.web"]
 
 # Initialize variables
 try:
+    # Google GenAI
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+    gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+    gemini_headers = {"Content-Type": "application/json"}
+    
     # Discord
     DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
     STARTUP_MESSAGE = " B0B has awoken! logged in as "
@@ -40,7 +45,7 @@ class B0B(commands.Bot):
 
     def __init__(self) -> None:
         super().__init__(
-            command_prefix=commands.when_mentioned_or(BOT_PREFIX),
+            command_prefix=BOT_PREFIX,
             case_insensitive=True,
             intents=intents,
         )
@@ -67,10 +72,27 @@ class B0B(commands.Bot):
             except Exception as error:
                 print(f"Failed to load extension {ext} due to {error}")
 
-    async def on_message(self, message:discord.Message) -> None:
+    async def on_message(self, message: discord.Message) -> None:
         # if message is not from itself
         if message.author == self.user:
             return
+        # if the bot is tagged
+        elif self.user.mentioned_in(message) and message.mention_everyone is False:
+            user_prompt = message.content.replace(f"<@{self.user.id}>", "").strip()
+            print(f"User prompt: {user_prompt}")
+            if user_prompt:
+                payload = {
+                    "contents": [{
+                        "parts": [{"text": f"Using a 'Tsundere' persona, answer the following prompt within 50 words unless mentioned otherwise: \n + {user_prompt}"}]
+                    }]
+                }
+                gemini_response = requests.post(gemini_url, headers=gemini_headers, json=payload)
+                if gemini_response.status_code == 200:
+                    gemini_data = gemini_response.json()
+                    gemini_message = gemini_data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "No response text available.")
+                else:
+                    gemini_message = f"Error fetching response from Gemini API: {gemini_response.status_code} - {gemini_response.text}"
+                await message.reply(gemini_message, mention_author=True)
         # listen for commands
         await bot.process_commands(message)
 
@@ -105,6 +127,7 @@ async def github(ctx) -> None:
 @commands.is_owner()
 async def sync_command_tree(ctx) -> None:
     """🔄Syncs the command Tree"""
+    bot.tree.clear_commands(guild=ctx.guild)
     await bot.tree.sync(guild = ctx.guild)
     print(f"Command tree synced at {ctx.guild}")
     await ctx.reply("Command tree synced")
