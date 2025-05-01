@@ -24,21 +24,19 @@ class Web(commands.Cog):
 
     @commands.hybrid_command(
         with_app_command=True,
-        description="B0B wiki something for you ...",
+        description="📚 Does a Wikipedia search",
     )
     async def wiki(self, ctx, search) -> None:
-        """📚 Does a Wikipedia search"""
         search.replace(" ", "_")
         await ctx.send(f"https://en.wikipedia.org/wiki/{search}")
 
     @commands.hybrid_command(
         with_app_command=True,
-        description="B0B send you pictures from reddit...",
+        description="📷 Reddit",
     )
     async def reddit(
         self, ctx, subreddit: str, sort: str = "hot", number: int = 1
     ) -> None:
-        "📷 Reddit"
         try:
             soup = self.connectParse(f"https://www.reddit.com/r/{subreddit}/{sort}/")
         except Exception as e:
@@ -55,10 +53,10 @@ class Web(commands.Cog):
 
     @commands.hybrid_command(
         with_app_command=True,
-        description="B0B will grant wisdom",
+        description="🎓 Hmm Quotes...",
     )
     async def quotes(self, ctx, mode: str = "random") -> None:
-        "🎓 Hmm Quotes..."
+
         soup = self.connectParse(f"https://zenquotes.io/api/{mode}")
         quotes = soup.findAll(text=True)
         quote = json.loads(str(quotes)[2:-2].encode("unicode_escape"))
@@ -71,11 +69,9 @@ class Web(commands.Cog):
     @commands.hybrid_command(
         aliases=["meow"],
         with_app_command=True,
-        description="B0B send cat pics",
+        description="🐈 Meowww",
     )
     async def cat(self, ctx) -> None:
-        "🐈 Meowww"
-
         soup = self.connectParse("https://api.thecatapi.com/v1/images/search")
         print("Parsing")
         cat = soup.findAll(text=True)
@@ -86,11 +82,9 @@ class Web(commands.Cog):
     @commands.hybrid_command(
         aliases=["bark", "woof"],
         with_app_command=True,
-        description="B0B send dog pics",
+        description="🐕 Woofffff",
     )
     async def dog(self, ctx) -> None:
-        "🐕 Woofffff"
-
         soup = self.connectParse("https://api.thedogapi.com/v1/images/search")
         dog = soup.findAll(text=True)
         dogjson = json.loads(str(dog)[3:-3])
@@ -100,11 +94,9 @@ class Web(commands.Cog):
     @commands.hybrid_command(
         aliases=["waifu"],
         with_app_command=True,
-        description="B0B send amazing pics",
+        description= "❤️ キャットガールズは最高です",
     )
     async def neko(self, ctx, mode: str = "neko") -> None:
-        "❤️ キャットガールズは最高です"
-
         soup = self.connectParse(f"https://nekos.life/api/v2/img/{mode}")
         neko = soup.findAll(text=True)
         nekojson = json.loads(str(neko)[2:-4])
@@ -116,10 +108,9 @@ class Web(commands.Cog):
 
     @commands.hybrid_command(
         with_app_command=True,
-        description="B0B will tell your facts",
+        description="💪 Tells you a fact about someone",
     )
     async def facts(self, ctx, person: str = "B0B") -> None:
-        "💪 Tells you a fact about someone"
         soup = self.connectParse("https://api.chucknorris.io/jokes/random")
         dude = soup.findAll(text=True)
         print(str(dude)[2:-2])
