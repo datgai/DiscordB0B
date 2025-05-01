@@ -5,6 +5,7 @@ import requests
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
+from aiohttp import web
 
 load_dotenv()
 
@@ -142,5 +143,19 @@ async def sync_command_tree(ctx) -> None:
     await ctx.reply("Command tree synced")
 
 
+async def healthcheck(request):
+    return web.Response(text="OK", status=200)
+
+
 if __name__ == "__main__":
+    app = web.Application()
+    app.router.add_get("/healthcheck", healthcheck)
+
+    # Run the healthcheck server in a separate thread
+    import threading
+    def run_healthcheck_server():
+        web.run_app(app, port=8080)
+
+    threading.Thread(target=run_healthcheck_server, daemon=True).start()
+
     bot.run(DISCORD_TOKEN)
