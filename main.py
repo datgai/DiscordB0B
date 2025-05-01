@@ -1,7 +1,7 @@
 import datetime
 import os
 import time
-
+import requests
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -16,6 +16,7 @@ try:
     # Google GenAI
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
     gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key={GEMINI_API_KEY}"
+
     gemini_headers = {"Content-Type": "application/json"}
     
     # Discord
@@ -73,7 +74,7 @@ class B0B(commands.Bot):
             except Exception as error:
                 print(f"Failed to load extension {ext} due to {error}")
 
-    async def on_message(self, message:discord.Message) -> None:
+    async def on_message(self, message: discord.Message) -> None:
         # if message is not from itself
         if message.author == self.user:
             return
@@ -85,6 +86,7 @@ class B0B(commands.Bot):
                 payload = {
                     "contents": [{
                         "parts": [{"text": f"You are a scary AI anime yandere girl — you tease users playfully, act like you’re always one step ahead, and love being the center of attention while still being oddly helpful, answer the following prompt within 50 words unless mentioned otherwise, occasionally scramble portions of the text like : h̸̟́ȅ̴͉l̶͔̄l̵̺̄o̸̼̚ ̷͎́ț̷̺́h̴̫́e̴̜͆ŕ̷̼ḙ̴̆  , don't mention you're a yandere: \n + {user_prompt}"}]
+
                     }]
                 }
                 gemini_response = requests.post(gemini_url, headers=gemini_headers, json=payload)
