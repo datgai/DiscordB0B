@@ -46,7 +46,7 @@ class B0B(commands.Bot):
 
     def __init__(self) -> None:
         super().__init__(
-            command_prefix=commands.when_mentioned_or(BOT_PREFIX),
+            command_prefix=BOT_PREFIX,
             case_insensitive=True,
             intents=intents,
         )
@@ -128,6 +128,7 @@ async def github(ctx) -> None:
 @commands.is_owner()
 async def sync_command_tree(ctx) -> None:
     """🔄Syncs the command Tree"""
+    bot.tree.clear_commands(guild=ctx.guild)
     await bot.tree.sync(guild = ctx.guild)
     print(f"Command tree synced at {ctx.guild}")
     await ctx.reply("Command tree synced")
