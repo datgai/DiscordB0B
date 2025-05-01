@@ -24,23 +24,6 @@ class Web(commands.Cog):
 
     @commands.hybrid_command(
         with_app_command=True,
-        description="B0B google something for you ...",
-    )
-    async def google(self, ctx, search: str) -> None:
-        """🤓 Does a search"""
-        soup = self.connectParse(f"https://www.google.com/search?q={search}&num=5")
-        links = soup.find_all("a")
-
-        for link in links:
-            link_href = link.get("href")
-            if "url?q=" in link_href and not "webcache" in link_href:
-                title = link.find_all("h3")
-                if len(title) > 0:
-                    await ctx.send(title[0].getText())
-                    await ctx.send(link.get("href").split("?q=")[1].split("&sa=U")[0])
-
-    @commands.hybrid_command(
-        with_app_command=True,
         description="B0B wiki something for you ...",
     )
     async def wiki(self, ctx, search) -> None:
@@ -61,7 +44,7 @@ class Web(commands.Cog):
         except Exception as e:
             print(e)
             await ctx.send(f"Unable to find Subreddit {subreddit}. Beep.")
-        images = soup.find_all("img", {"alt": "Post image"})
+        images = soup.find_all("img", {"id": "post-image"})
         print(images)
 
         if number >= len(images):
