@@ -12,12 +12,18 @@ initial_extensions = ["cogs.basic", "cogs.web"]
 
 # Initialize variables
 try:
+
+    # Google GenAI
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+    gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key={GEMINI_API_KEY}"
+    gemini_headers = {"Content-Type": "application/json"}
+    
     # Discord
     DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
     STARTUP_MESSAGE = " B0B has awoken! logged in as "
     BOT_PREFIX = "0"
     DISCORD_STATUS = discord.Game(
-        "w̶̡͌i̷͉̚t̷̘̎h̶̙̀ ̸̙͊ḧ̶̯́i̴̳̾ṡ̷͚ ̷̾͜f̷͈͛r̸̬̾i̴̢̎e̷̠͒ñ̶̥d̵͜͝s̸̮̆"
+        "w̷̰͝i̷͕̾t̴͕̃h̶͉͘ ̷͖̆h̸̜̏ë̷̜́r̸̡͋ ̴̢̈f̶̻̀ṛ̸̆i̶̡͌e̸̤̒n̵̻͝d̷̻͆s̴̗̃"
     )
     HELP_MESSAGE = " TODO "
 
@@ -71,6 +77,23 @@ class B0B(commands.Bot):
         # if message is not from itself
         if message.author == self.user:
             return
+        # if the bot is tagged
+        elif self.user.mentioned_in(message) and message.mention_everyone is False:
+            user_prompt = message.content.replace(f"<@{self.user.id}>", "").strip()
+            print(f"User prompt: {user_prompt}")
+            if user_prompt:
+                payload = {
+                    "contents": [{
+                        "parts": [{"text": f"You are a scary AI anime yandere girl — you tease users playfully, act like you’re always one step ahead, and love being the center of attention while still being oddly helpful, answer the following prompt within 50 words unless mentioned otherwise, occasionally scramble portions of the text like : h̸̟́ȅ̴͉l̶͔̄l̵̺̄o̸̼̚ ̷͎́ț̷̺́h̴̫́e̴̜͆ŕ̷̼ḙ̴̆  , don't mention you're a yandere: \n + {user_prompt}"}]
+                    }]
+                }
+                gemini_response = requests.post(gemini_url, headers=gemini_headers, json=payload)
+                if gemini_response.status_code == 200:
+                    gemini_data = gemini_response.json()
+                    gemini_message = gemini_data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "No response text available.")
+                else:
+                    gemini_message = f"Error fetching response from Gemini API: {gemini_response.status_code} - {gemini_response.text}"
+                await message.reply(gemini_message, mention_author=True)
         # listen for commands
         await bot.process_commands(message)
 
