@@ -22,7 +22,7 @@ try:
     
     # Discord
     DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
-    STARTUP_MESSAGE = " ABIGA1L has awoken! logged in as "
+    STARTUP_MESSAGE = " B0B has awoken! logged in as "
     BOT_PREFIX = "0"
     DISCORD_STATUS = discord.Game(
         "w̷̰͝i̷͕̾t̴͕̃h̶͉͘ ̷͖̆h̸̜̏ë̷̜́r̸̡͋ ̴̢̈f̶̻̀ṛ̸̆i̶̡͌e̸̤̒n̵̻͝d̷̻͆s̴̗̃"
@@ -30,7 +30,7 @@ try:
     HELP_MESSAGE = " TODO "
 
     # Advanced settings
-    BOT_VERSION = "2.1"
+    BOT_VERSION = "2.0"
     TIME_FORMAT = datetime.datetime.strptime(time.asctime(time.localtime()), "%c")
 
     # Intents
@@ -42,12 +42,10 @@ except Exception as e:
     print(e)
 
 
-class BOT(commands.Bot):
+class B0B(commands.Bot):
     user: discord.ClientUser
     bot_app_info: discord.AppInfo
-    owner_id: discord.User
-    bot_name: str
-    
+
     def __init__(self) -> None:
         super().__init__(
             command_prefix=BOT_PREFIX,
@@ -58,11 +56,7 @@ class BOT(commands.Bot):
     @property
     def owner(self) -> discord.User:
         return self.bot_app_info.owner
-    
-    @property
-    def name(self) -> str:
-        return self.user.name if self.user else "Unknown"
-    
+
     async def on_ready(self) -> None:
         print(STARTUP_MESSAGE + str(self.user))
         print(f"Version: {BOT_VERSION}")
@@ -112,12 +106,12 @@ class BOT(commands.Bot):
         print(error)
 
 
-bot = BOT()
+bot = B0B()
 
 
-@bot.hybrid_command(with_app_command=True, description=f"Pings {bot.name}")
+@bot.hybrid_command(with_app_command=True, description="Pings B0B")
 async def ping(ctx) -> None:
-    """🏓 Pings the BOT"""
+    """🏓 Pings B0B"""
     await ctx.reply("pong.")
 
 
@@ -126,9 +120,9 @@ async def say(interaction: discord.Interaction, message: discord.Message) -> Non
     await interaction.response.send_message(message.content)
 
 
-@bot.hybrid_command(with_app_command=True, description=f"{bot.name}'s website")
+@bot.hybrid_command(with_app_command=True, description="B0B's website")
 async def github(ctx) -> None:
-    """🏠 BOT's website"""
+    """🏠 B0B's website"""
     await ctx.send("https://github.com/datgai/DiscordB0B")
 
 
