@@ -154,7 +154,7 @@ if __name__ == "__main__":
     # Run the healthcheck server in a separate thread
     import threading
     def run_healthcheck_server():
-        web.run_app(app, port=8080)
+        web.run_app(app, port=os.getenv("PORT", default=8080))
 
     threading.Thread(target=run_healthcheck_server, daemon=True).start()
 
